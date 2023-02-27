@@ -1,0 +1,6 @@
+Detecting a turn:
+  - turns usually about 3 datapoints
+    -- pre, during, post
+    -- could iterate through 3 datapoints looking for stark changes in longitude/latitude
+
+  
