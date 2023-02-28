@@ -7,7 +7,7 @@ from turnDetection import lineTurnDetection, angleTurnDetection, velocityTurnDet
 import timeit;
 
 
-with open('Morning_Sail-2.gpx','r',encoding='utf-8') as file:
+with open('Morning_Sail-4.gpx','r',encoding='utf-8') as file:
     gpx = gpxpy.parse(file)
 
 runInfo = [] #This is where I will store the raw coordinate values
@@ -51,13 +51,13 @@ dfrunInfo = pd.DataFrame([
 
 
 coords = [tuple(x) for x in dfrunInfo[['latitude','longitude']].to_numpy()]
-i = 0
-while i < len(coords)-3:
-    print(coords[i])
-    newCoords = coords[i]
-    i+=3
 
-# coords and dfrunInfo are the same size, they can be used to index each other for turn color
+# ------ UNCOMMENT TO DIVIDE DATAPOINTS BY THREE ----- 
+newCoords = []
+for x in coords[0::3]:
+    newCoords.append(tuple(x))
+
+
 
 routeMap = folium.Map(
     location = [dfrunInfo.latitude.mean(), dfrunInfo.longitude.mean()],
@@ -67,13 +67,17 @@ routeMap = folium.Map(
     height = 600
 )
 
-for i in newCoords:
-    folium.CircleMarker([i[0],i[1]], color='red', weight = 3).add_to(routeMap)
+# ------ UNCOMMMENT FOR CIRCLE MARKERS ------ 
 
-# folium.Marker([generalLatitude,generalLongitude]).add_to(routeMap)
-# folium.PolyLine(coords,color='red',weight=3).add_to(routeMap)
+# for i in coords:
+#     folium.CircleMarker([i[0],i[1]], color='red', weight = 3).add_to(routeMap)
+
+folium.PolyLine(coords,color='red',weight=3).add_to(routeMap)
+
 # lineTurnDetection(coords, routeMap)
+
 angleTurnDetection(newCoords,routeMap)
-# velocityTurnDetection(dfrunInfo, routeMap)
+
+velocityTurnDetection(dfrunInfo, routeMap)
 
 routeMap.show_in_browser()
