@@ -48,11 +48,10 @@ def angleTurnDetection(coords, map):
             pass
 
         if(angle2deg<=150):
-            # tempCoords = {(coords[x][0],coords[x][1]),(coords[x+1][0],coords[x+1][1]),(coords[x+2][0],coords[x+2][1])}
             folium.CircleMarker([coords[x][0],coords[x][1]],color='blue',weight=4).add_to(map) 
-            folium.CircleMarker([coords[x+1][0],coords[x+1][1]],color='blue',weight=4).add_to(map) 
-            folium.CircleMarker([coords[x+2][0],coords[x+2][1]],color='blue',weight=4).add_to(map) 
-        x +=3
+            # for i in range(6):
+            #     folium.CircleMarker([coords[x+i][0],coords[x+i][1]],color='blue',weight=4).add_to(map)  
+        x+=1
 
 def velocityTurnDetection(frame, map):
     # distance = []
@@ -68,15 +67,15 @@ def velocityTurnDetection(frame, map):
             velocityList.append(velocity)
     frame['velocity'] = velocityList
     avgVelocity = frame.velocity.mean()
-    print(avgVelocity)
+    # print(avgVelocity)
     lowerQuartile = frame.velocity.quantile([0.25])
     # print(lowerQuartile)
     # print(avgVelocity)
     iterated = frame.iterrows()
     # print(frame.head)
     for _, x in iterated:
-        if(x['velocity']<0.4):
+        if(x['velocity']<avgVelocity):
             # tempCoords = (x['latitude'],x['longitude'])
-            # folium.CircleMarker([x['latitude'],x['longitude']],color='blue',weight=4).add_to(map)
-            folium.Marker([x['latitude'],x['longitude']],popup=x['velocity'],color='blue',weight=4).add_to(map)
+            folium.CircleMarker([x['latitude'],x['longitude']],color='blue',weight=4).add_to(map)
+            # folium.Marker([x['latitude'],x['longitude']],popup=x['velocity'],color='blue',weight=4).add_to(map)
     

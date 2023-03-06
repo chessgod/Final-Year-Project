@@ -7,7 +7,7 @@ from turnDetection import lineTurnDetection, angleTurnDetection, velocityTurnDet
 import timeit;
 
 
-with open('Morning_Sail-4.gpx','r',encoding='utf-8') as file:
+with open('./GPX/laser-in.gpx','r',encoding='utf-8') as file:
     gpx = gpxpy.parse(file)
 
 runInfo = [] #This is where I will store the raw coordinate values
@@ -52,6 +52,7 @@ dfrunInfo = pd.DataFrame([
 
 coords = [tuple(x) for x in dfrunInfo[['latitude','longitude']].to_numpy()]
 
+
 # ------ UNCOMMENT TO DIVIDE DATAPOINTS BY THREE ----- 
 newCoords = []
 for x in coords[0::3]:
@@ -64,7 +65,7 @@ routeMap = folium.Map(
     zoom_start = 14,
     tiles = 'OpenStreetMap',
     width = 1024,
-    height = 600
+    height = 600,
 )
 
 # ------ UNCOMMMENT FOR CIRCLE MARKERS ------ 
@@ -76,8 +77,9 @@ folium.PolyLine(coords,color='red',weight=3).add_to(routeMap)
 
 # lineTurnDetection(coords, routeMap)
 
-angleTurnDetection(newCoords,routeMap)
+angleTurnDetection(coords,routeMap)
 
-velocityTurnDetection(dfrunInfo, routeMap)
+# velocityTurnDetection(dfrunInfo, routeMap)
+
 
 routeMap.show_in_browser()

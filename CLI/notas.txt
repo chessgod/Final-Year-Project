@@ -2,5 +2,23 @@ Detecting a turn:
   - turns usually about 3 datapoints
     -- pre, during, post
     -- could iterate through 3 datapoints looking for stark changes in longitude/latitude
+  - turns are much more than three datapoints
+  - get an API to get windspeed, then use that in the thresholing
+    -- wind direction with the API
+    -- get angle of attack from user, put that into speed calculations
+  - angle turn detection works the best, have to improve that
+    -- dynamic thresholing dependant on windspeed and direciton 
+    -- maybe remove even more data points? the turs are quite defined 
+    -- dynamically remove points dependant on speed
+  - collect speed from angle turns, take avg pf that and use as threshold
+  - find two points where it seems a turn is occuring (get their gradient)
+    -- graph an expected line and then compare deviation to that line (thresholded difference)
+
+
+Questions for Stuart:
+ - can I use AI packages, such as sklearn
+ - can I use stack overflow
+ 
+  
 
   
