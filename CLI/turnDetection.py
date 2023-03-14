@@ -9,6 +9,8 @@ from geopy.distance import geodesic
 
 # If the 2 points are A(Xa,Ya) and B(Xb,Yb), the gradient of the line is:
 # m = (Yb-Ya)/(Xb-Xa) — that is, vertical change divided by horizontal change.
+tacksDict = [{}]
+gybesDict = [{}]
 def lineTurnDetection(c, map):
     x  = 0
     while x < len(c)-6:
@@ -45,12 +47,17 @@ def angleTurnDetection(coords, map):
         try:
             angle2deg = np.degrees(math.acos(np.dot(avec, cvec) / (np.linalg.norm(avec) * np.linalg.norm(cvec))))
         except ValueError:
+            # print(angle2deg)
             pass
 
-        if(angle2deg<=150):
-            folium.CircleMarker([coords[x][0],coords[x][1]],color='blue',weight=4).add_to(map) 
-            # for i in range(6):
-            #     folium.CircleMarker([coords[x+i][0],coords[x+i][1]],color='blue',weight=4).add_to(map)  
+        if(angle2deg<=150):    
+            # folium.CircleMarker([coords[x][0],coords[x][1]],color='blue',weight=4).add_to(map)
+            # manouver = manouverType(coords[x],coords[x+1],coords[x+2])
+            try:
+                for i in range(6):
+                    folium.CircleMarker([coords[x+i][0],coords[x+i][1]],color='blue',weight=4).add_to(map)  
+            except:
+                pass
         x+=1
 
 def velocityTurnDetection(frame, map):
@@ -78,4 +85,8 @@ def velocityTurnDetection(frame, map):
             # tempCoords = (x['latitude'],x['longitude'])
             folium.CircleMarker([x['latitude'],x['longitude']],color='blue',weight=4).add_to(map)
             # folium.Marker([x['latitude'],x['longitude']],popup=x['velocity'],color='blue',weight=4).add_to(map)
-    
+
+'''
+def manouverType(c1, c2, c3):
+    # code for working out if tack or gybe
+'''

@@ -4,16 +4,20 @@ import pandas as pd;
 import matplotlib.pyplot as plt;
 import folium;
 from turnDetection import lineTurnDetection, angleTurnDetection, velocityTurnDetection;
+from videoProcessing import getVidData, splitVideo, vidStart;
+from api import apiData;
 import timeit;
 
 
-with open('./GPX/laser-in.gpx','r',encoding='utf-8') as file:
+with open('./GPX/first_video.gpx','r',encoding='utf-8') as file:
     gpx = gpxpy.parse(file)
 
-runInfo = [] #This is where I will store the raw coordinate values
-generalLongitude = 0 #This is to determine the general longitude of the map
-generalLatitude = 0 #This determines the general latitude of the map
-# start = timeit.default_timer()
+# getVidData("Raw Laser Sailing Footage.mp4")
+splitVideo("Raw Laser Sailing Footage.mp4")
+startTime = vidStart("Raw Laser Sailing Footage.mp4")
+
+
+start = timeit.default_timer()
 segment = gpx.tracks[0].segments[0]
 dfrunInfo = pd.DataFrame([
 {   'latitude': point.latitude,
@@ -21,34 +25,13 @@ dfrunInfo = pd.DataFrame([
     'time': point.time,
 }for point in segment.points])
 
-# stop = timeit.default_timer()
-# print(stop - start)
+stop = timeit.default_timer()
+print(stop - start)
 
-# for _, x in dfrunInfo.iterrows():
-#     # print(x['latitude'])
-#     # print(x['longitude'])
-#     generalLatitude = generalLatitude+ x['latitude']
-#     generalLongitude = generalLongitude + x['longitude']
+meanLat = dfrunInfo.latitude.mean()
+meanLong = dfrunInfo.longitude.mean()
 
-
-
-# for track in gpx.tracks:
-#     for segment in track.segments:
-#         for point in segment.points:
-#             runInfo.append({
-#                 'latitude': point.latitude,
-#                 'longitude': point.longitude,
-#                 'time': point.time,
-#             })
-#             generalLongitude = generalLongitude + point.longitude
-#             generalLatitude = generalLatitude + point.latitude
-
-# dfrunInfo = pd.DataFrame(runInfo)
-# print(dfrunInfo.head(5))
-# plt.figure(figsize=[14,8])
-# plt.scatter(dfrunInfo['longitude'], dfrunInfo['latitude'], color='blue')
-# plt.show()
-
+# windAPI = apiData(meanLat, meanLong, dfrunInfo['time'].iloc[0])
 
 coords = [tuple(x) for x in dfrunInfo[['latitude','longitude']].to_numpy()]
 
@@ -61,7 +44,7 @@ for x in coords[0::3]:
 
 
 routeMap = folium.Map(
-    location = [dfrunInfo.latitude.mean(), dfrunInfo.longitude.mean()],
+    location = [meanLat, meanLong],
     zoom_start = 14,
     tiles = 'OpenStreetMap',
     width = 1024,
