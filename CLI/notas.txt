@@ -19,6 +19,11 @@ Questions for Stuart:
  - can I use AI packages, such as sklearn
  - can I use stack overflow
  
+
+ - tack angle
+ - bull and bye
+ - angle below closehold 
+ 
   
 
   

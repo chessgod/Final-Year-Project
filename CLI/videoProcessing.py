@@ -20,25 +20,28 @@ def getVidData(videoFile):
     capture.release()
     cv2.destroyAllWindows()
 
-def splitVideo(original, tacks, gybes):
+def splitVideo(original):
     validDecision = False
+    clipList = []
     while validDecision == False:
         print("Would you like to see tacks or gybes? (t) , (g)")
         decision = input()
         if(decision == "t" or decision == "g"):
             validDecision = True
-            
+            break
+        print("That is not a valid input.")
+
     print("How many videos would you like to see?")
     numVideos = input()
     fullVid = mp.VideoFileClip(original)
-    duration = fullVid.duration()
-    for x in range(int(numVideos)):
-        
-    example1 = mp.VideoFileClip(original).subclip(0, 10)
-    example2 = mp.VideoFileClip(original).subclip(10, 20)
-    example3 = mp.VideoFileClip(original).subclip(20, 30)
+    duration = fullVid.duration
+    nextVal = 0
+    for x in range(1, int(numVideos)+1):
+        temp = mp.VideoFileClip(original).subclip(nextVal, x*10)
+        nextVal = x*10
+        clipList.append(temp)
 
-    all = mp.clips_array([[example1, example2, example3]])
+    all = mp.clips_array([clipList])
 
     all.write_videofile("testing.mp4", logger =None, verbose = False)
 
