@@ -32,6 +32,21 @@ def angleTurnDetection(coords, map, frame):
     x = 0
     angleList = []
     turnList = []
+    manouverList = []
+    compassDegrees = {
+        "N": 90,
+        "NE": 45,
+        "E": 0,
+        "SE": -45,
+        "S": -90,
+        "SW": -135,
+        "W": 180,
+        "NW": 135
+    }
+
+    print("What was the wind direction during your sail?(N,S,E,W,NE,SE..)")
+    windDirection = input()
+
     while x < len(coords)-3:
         # Convert the points to numpy latitude/longitude radians space
         a = np.radians(np.array(coords[x]))
@@ -41,6 +56,21 @@ def angleTurnDetection(coords, map, frame):
         # Vectors in latitude/longitude space
         avec = a - b
         cvec = c - b
+
+        # Calculate changes in latitude and longitude
+
+        latChange = a[0] - b[0]
+        lonChange = a[1] - b[1]
+
+        #Calculation for angle difference between heading and wind direction
+
+        headingDiffernce = math.degrees(math.atan2(lonChange, latChange)) - compassDegrees[windDirection]
+
+        # Determining type of manouver
+        manouverResult = manouverType(headingDiffernce)
+
+        # Adding manouver to list, later added to dataframe
+        manouverList.append(manouverResult)
 
         # Adjust vectors for changed longitude scale at given latitude into 2D space
         lat = b[0]
@@ -75,6 +105,7 @@ def angleTurnDetection(coords, map, frame):
     # Adding values to original dataframe 
     frame['angle'] = angleList
     frame['turn'] = turnList
+    frame['manouverType'] = manouverList
 
 def velocityTurnDetection(frame, map):
     # distance = []
@@ -102,23 +133,104 @@ def velocityTurnDetection(frame, map):
     #         folium.CircleMarker([x['latitude'],x['longitude']],color='blue',weight=4).add_to(map)
     #         # folium.Marker([x['latitude'],x['longitude']],popup=x['velocity'],color='blue',weight=4).add_to(map)
 
-'''
-def manouverType(c1, c2, c3):
+
+def manouverType(diff):
     # code for working out if tack or gybe
+
+    if abs(diff) > 90:
+        # The boat has gybed if the diff is greater than 90 degrees
+        if diff < 0:
+            return "GP"
+        else:
+            return "GS"
+    else:
+        # The boat has tacked if the diff is less than or equal to 90 degrees
+        if diff < 0:
+            return "TP"
+        else:
+            return "TS"
+
+    # print("What was the wind direction during your sail?(N,S,E,W,NE,SE..)")
+    # windDirection = input()
+
+    # for x in degreeTable:
+    #     print()
+
+    # for _,x in df.iterrows():
+    #     print()
+
 '''
+def determine_sail_change(prev_coord, curr_coord, wind_direction):
+    """Determine if boat has tacked or gybed based on previous and current coordinates and wind direction."""
+    
+    # Define a dictionary to map compass directions to the angle between the boat's heading and the wind direction
+    compass_directions = {
+        "N": 90,
+        "NE": 45,
+        "E": 0,
+        "SE": -45,
+        "S": -90,
+        "SW": -135,
+        "W": 180,
+        "NW": 135
+    }
+    
+    # Calculate the change in latitude and longitude
+    lat_change = curr_coord[0] - prev_coord[0]
+    lon_change = curr_coord[1] - prev_coord[1]
+    
+    # Calculate the angle between the boat's heading and the wind direction
+    angle = math.degrees(math.atan2(lon_change, lat_change)) - compass_directions[wind_direction]
+    
+    # Determine if boat has tacked or gybed
+    if abs(angle) > 90:
+        # The boat has gybed if the angle is greater than 90 degrees
+        if angle < 0:
+            return "gybed to port"
+        else:
+            return "gybed to starboard"
+    else:
+        # The boat has tacked if the angle is less than or equal to 90 degrees
+        if angle < 0:
+            return "tacked to port"
+        else:
+            return "tacked to starboard"
+'''      
+
 
 def aiTurnDetection(df):
     model = tf.keras.models.Sequential()
     xVals = df.drop(['turn','time'], axis=1)
+    # xVals['time'] = xVals['time'].astype("str")
     yVals = df['turn']
-    
+
     x_train, x_test, y_train, y_test = train_test_split(xVals,yVals,test_size=0.2)
     x_train = np.asarray(x_train).astype(np.float32)
     y_train = np.asarray(y_train).astype(np.float32)
-    model.add(tf.keras.layers.Dense(256, input_shape=x_train.shape[1:], activation = 'sigmoid'))
-    model.add(tf.keras.layers.Dense(256, activation='sigmoid'))
+    model.add(tf.keras.layers.Dense(64, input_shape=x_train.shape[1:], activation = 'sigmoid'))
+    model.add(tf.keras.layers.Dense(64, activation='sigmoid'))
     model.add(tf.keras.layers.Dense(1, activation='sigmoid'))
 
     model.compile(optimizer="adam", loss = "binary_crossentropy", metrics=["accuracy"])
 
-    model.fit(x_train, y_train, epochs=500)
+    model.fit(x_train, y_train, epochs=500, verbose=0)
+
+    print("Training data results: ")
+    model.evaluate(x_train, y_train)
+    # print("Training data results: " + results)
+    model.save("laser-in.h5")
+
+def aiTurnDetection_Load(df):
+    model = tf.keras.models.load_model("laser-in.h5")
+    xVals = df.drop(['turn','time'], axis=1)
+    # xVals['time'] = xVals['time'].astype("str")
+    yVals = df['turn']
+
+    x_train, x_test, y_train, y_test = train_test_split(xVals,yVals,test_size=0.2)
+    x_test = np.asarray(x_test).astype(np.float32)
+    y_test = np.asarray(y_test).astype(np.float32)
+
+    model.fit(x_test, y_test, epochs=500, verbose=0)
+
+    print("Unseen data: ")
+    model.evaluate(x_test, y_test)

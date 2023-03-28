@@ -9,7 +9,7 @@ from api import apiData;
 import timeit;
 
 
-with open('./GPX/first_video.gpx','r',encoding='utf-8') as file:
+with open('./GPX/laser-in.gpx','r',encoding='utf-8') as file:
     gpx = gpxpy.parse(file)
 
 # getVidData("Raw Laser Sailing Footage.mp4")
@@ -64,5 +64,6 @@ folium.PolyLine(coords,color='red',weight=3).add_to(routeMap)
 # lineTurnDetection(coords, routeMap)
 td.velocityTurnDetection(dfrunInfo, routeMap)
 td.angleTurnDetection(coords,routeMap, dfrunInfo)
-td.aiTurnDetection(dfrunInfo)
+# td.aiTurnDetection(dfrunInfo)
+td.aiTurnDetection_Load(dfrunInfo)
 routeMap.show_in_browser()
