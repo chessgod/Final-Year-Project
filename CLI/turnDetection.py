@@ -33,16 +33,6 @@ def angleTurnDetection(coords, map, frame):
     angleList = []
     turnList = []
     manouverList = []
-    compassDegrees = {
-        "N": 90,
-        "NE": 45,
-        "E": 0,
-        "SE": -45,
-        "S": -90,
-        "SW": -135,
-        "W": 180,
-        "NW": 135
-    }
 
     print("What was the wind direction during your sail?(N,S,E,W,NE,SE..)")
     windDirection = input()
@@ -56,21 +46,6 @@ def angleTurnDetection(coords, map, frame):
         # Vectors in latitude/longitude space
         avec = a - b
         cvec = c - b
-
-        # Calculate changes in latitude and longitude
-
-        latChange = a[0] - b[0]
-        lonChange = a[1] - b[1]
-
-        #Calculation for angle difference between heading and wind direction
-
-        headingDiffernce = math.degrees(math.atan2(lonChange, latChange)) - compassDegrees[windDirection]
-
-        # Determining type of manouver
-        manouverResult = manouverType(headingDiffernce)
-
-        # Adding manouver to list, later added to dataframe
-        manouverList.append(manouverResult)
 
         # Adjust vectors for changed longitude scale at given latitude into 2D space
         lat = b[0]
@@ -86,21 +61,29 @@ def angleTurnDetection(coords, map, frame):
             pass
         angleList.append(angle2deg)
         if(angle2deg<=150):    
-            # folium.CircleMarker([coords[x][0],coords[x][1]],color='blue',weight=4).add_to(map)
             # manouver = manouverType(coords[x],coords[x+1],coords[x+2])
             turnList.append(1)
-            try:
-                for i in range(6):
-                    folium.CircleMarker([coords[x+i][0],coords[x+i][1]],color='blue',weight=4).add_to(map)  
-            except:
-                pass
+            # Determining type of manouver
+            manouverResult = manouverType(a,b, windDirection)
+
+            # Adding manouver to list, later added to dataframe
+            manouverList.append(manouverResult)
+            folium.CircleMarker([coords[x][0],coords[x][1]],color='blue',weight=4).add_child(folium.Popup(manouverResult)).add_to(map)
+
+            # try:
+            #     for i in range(6):
+            #         folium.CircleMarker([coords[x+i][0],coords[x+i][1]],color='blue',weight=4).add_to(map)  
+            # except:
+            #     pass
         else:
             turnList.append(0)
+            manouverList.append(0)
         x+=1
     # Account for the three dropped points in while loop
     for x in range(3):
         angleList.append(0)
         turnList.append(0)
+        manouverList.append(0)
 
     # Adding values to original dataframe 
     frame['angle'] = angleList
@@ -134,37 +117,9 @@ def velocityTurnDetection(frame, map):
     #         # folium.Marker([x['latitude'],x['longitude']],popup=x['velocity'],color='blue',weight=4).add_to(map)
 
 
-def manouverType(diff):
+def manouverType(first, second, direction):
     # code for working out if tack or gybe
-
-    if abs(diff) > 90:
-        # The boat has gybed if the diff is greater than 90 degrees
-        if diff < 0:
-            return "GP"
-        else:
-            return "GS"
-    else:
-        # The boat has tacked if the diff is less than or equal to 90 degrees
-        if diff < 0:
-            return "TP"
-        else:
-            return "TS"
-
-    # print("What was the wind direction during your sail?(N,S,E,W,NE,SE..)")
-    # windDirection = input()
-
-    # for x in degreeTable:
-    #     print()
-
-    # for _,x in df.iterrows():
-    #     print()
-
-'''
-def determine_sail_change(prev_coord, curr_coord, wind_direction):
-    """Determine if boat has tacked or gybed based on previous and current coordinates and wind direction."""
-    
-    # Define a dictionary to map compass directions to the angle between the boat's heading and the wind direction
-    compass_directions = {
+    compassDegrees = {
         "N": 90,
         "NE": 45,
         "E": 0,
@@ -174,29 +129,28 @@ def determine_sail_change(prev_coord, curr_coord, wind_direction):
         "W": 180,
         "NW": 135
     }
-    
-    # Calculate the change in latitude and longitude
-    lat_change = curr_coord[0] - prev_coord[0]
-    lon_change = curr_coord[1] - prev_coord[1]
-    
-    # Calculate the angle between the boat's heading and the wind direction
-    angle = math.degrees(math.atan2(lon_change, lat_change)) - compass_directions[wind_direction]
-    
-    # Determine if boat has tacked or gybed
-    if abs(angle) > 90:
-        # The boat has gybed if the angle is greater than 90 degrees
-        if angle < 0:
-            return "gybed to port"
-        else:
-            return "gybed to starboard"
-    else:
-        # The boat has tacked if the angle is less than or equal to 90 degrees
-        if angle < 0:
-            return "tacked to port"
-        else:
-            return "tacked to starboard"
-'''      
 
+    # Calculate changes in latitude and longitude
+
+    latChange = first[0] - second[0]
+    lonChange = first[1] - second[1]
+
+    #Calculation for angle difference between heading and wind direction
+
+    headingDiffernce = math.degrees(math.atan2(lonChange, latChange)) - compassDegrees[direction]
+
+    if abs(headingDiffernce) > 90:
+        # The boat has gybed if the headingDiffernce is greater than 90 degrees
+        if headingDiffernce < 0:
+            return "GP"
+        else:
+            return "GS"
+    else:
+        # The boat has tacked if the headingDiffernce is less than or equal to 90 degrees
+        if headingDiffernce < 0:
+            return "TP"
+        else:
+            return "TS"
 
 def aiTurnDetection(df):
     model = tf.keras.models.Sequential()
@@ -227,8 +181,14 @@ def aiTurnDetection_Load(df):
     yVals = df['turn']
 
     x_train, x_test, y_train, y_test = train_test_split(xVals,yVals,test_size=0.2)
-    x_test = np.asarray(x_test).astype(np.float32)
-    y_test = np.asarray(y_test).astype(np.float32)
+    try:
+        x_test = np.asarray(x_test).astype(np.float32)
+        y_test = np.asarray(y_test).astype(np.float32)
+    except ValueError as e:
+        if str(e) == "could not convert string to float":
+            pass
+        else:
+            print(e)
 
     model.fit(x_test, y_test, epochs=500, verbose=0)
 

@@ -1,24 +1,44 @@
 import cv2
 import moviepy.editor as mp
+import timeit
 
-def getVidData(videoFile):
-    capture = cv2.VideoCapture(videoFile)
-    # height, width = capture.shape
-    # newHeight = height * numVideos
-    # newWidth = width * numVideos
-    if(capture.isOpened() == 'False'):
-        print("It ain't gonna open boss.")
-    while(capture.isOpened()):
-        ret, frame = capture.read()
-        if(ret==True):
-            cv2.imshow('frame', frame)
+# def getVidData(videoFile):
 
-            if(cv2.waitKey(25) == ord('q')):
-               break
-        else:
-            break   
-    capture.release()
-    cv2.destroyAllWindows()
+#     capture = cv2.VideoCapture(videoFile)
+
+#     duration = capture.get(cv2.CAP_PROP_POS_MSEC)
+
+#     print("Video Duration: " ,duration)
+
+
+    
+    # # height, width = capture.shape
+    # # newHeight = height * numVideos
+    # # newWidth = width * numVideos
+    # if(capture.isOpened() == 'False'):
+    #     print("It ain't gonna open boss.")
+    # while(capture.isOpened()):
+    #     ret, frame = capture.read()
+    #     if(ret==True):
+    #         cv2.imshow('frame', frame)
+
+    #         if(cv2.waitKey(25) == ord('q')):
+    #            break
+    #     else:
+    #         break   
+    # capture.release()
+    # cv2.destroyAllWindows()
+
+def combineClips():
+    print("Please input all the clips. (filepaths separated by one space each)")
+    userInput = input()
+    clipArray = userInput.split(" ")
+
+    formattedArray = [mp.VideoFileClip(clip) for clip in clipArray]
+
+    finalVideo = mp.concatenate_videoclips(formattedArray)
+
+    return finalVideo, finalVideo.duration
 
 def splitVideo(original):
     validDecision = False
