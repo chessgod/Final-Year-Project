@@ -3,8 +3,8 @@ import gpxpy.gpx;
 import pandas as pd;
 import matplotlib.pyplot as plt;
 import folium;
-import turnDetection as td;
-from videoProcessing import splitVideo, vidStart, combineClips;
+import gpxProcessing as gp;
+import videoProcessing as vp;
 from api import apiData;
 import timeit;
 
@@ -26,9 +26,33 @@ meanLat = dfrunInfo.latitude.mean()
 
 meanLong = dfrunInfo.longitude.mean()
 
-fullVideo, videoDuration = combineClips()
-print(gpxDuration.total_seconds())
-print(videoDuration)
+fullVideo, videoDuration = vp.combineClips()
+
+gpxDuration = gpxDuration.total_seconds()
+
+trimDecision = max(videoDuration, gpxDuration)
+
+offset = max(videoDuration, gpxDuration) - min(videoDuration, gpxDuration)
+
+
+if(trimDecision == videoDuration):
+    print("The video is longer than the GPX file. Would you like the end or the beggining of the video to be trimmed? (e or b)")
+    videoDecision = input()
+    trimmedVideo = vp.videoTrim(fullVideo, videoDecision, offset)
+else:
+    print("The GPX is longer than the video. Would you like the end or the beggining to be trimmed? (e or b)")
+    gpxDecision = input()
+    dftrimmedInfo = gp.gpxTrim(dfrunInfo, gpxDecision, offset)
+
+
+# temp = dftrimmedInfo["time"].iloc[-1] - dftrimmedInfo["time"].iloc[0]
+# print(videoDuration)
+# print(temp.total_seconds())
+
+# print(videoDuration)
+# print(trimmedVideo.duration)
+# print(gpxDuration.total_seconds())
+# print(videoDuration)
 # getVidData(fullVideo)
 # start1 = timeit.default_timer()
 # splitVideo("Footage/GH010056.MP4")
@@ -66,10 +90,10 @@ routeMap = folium.Map(
 folium.PolyLine(coords,color='red',weight=3).add_to(routeMap)
 
 # lineTurnDetection(coords, routeMap)
-td.velocityTurnDetection(dfrunInfo, routeMap)
-td.angleTurnDetection(coords,routeMap, dfrunInfo)
-# td.aiTurnDetection(dfrunInfo)
-# td.aiTurnDetection_Load(dfrunInfo)
+gp.velocityTurnDetection(dfrunInfo, routeMap)
+gp.angleTurnDetection(coords,routeMap, dfrunInfo)
+# gp.aiTurnDetection(dfrunInfo)
+# gp.aiTurnDetection_Load(dfrunInfo)
 
 # print(dfrunInfo.head)
 routeMap.show_in_browser()

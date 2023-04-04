@@ -40,6 +40,15 @@ def combineClips():
 
     return finalVideo, finalVideo.duration
 
+def videoTrim(video, decision, offset):
+    print(type(video))
+    endOffset = video.end - offset
+    if(decision == "e"):
+        video = video.cutout(endOffset, video.end)
+    elif(decision == "b"):
+        video = video.cutout(0, offset)
+    return video
+
 def splitVideo(original):
     validDecision = False
     clipList = []
