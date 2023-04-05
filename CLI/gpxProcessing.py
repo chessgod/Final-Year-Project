@@ -23,10 +23,13 @@ def gpxTrim(frame, decision, offset):
        startTime = frame["time"].iloc[-1]
        cutoff = startTime - offsetDelta
        newFrame = frame.query("time<@cutoff")
+       print(newFrame.head)
     elif(decision == "b"):
         endTime = frame["time"].iloc[0]
         cutoff = endTime + offsetDelta
-        newFrame = frame.query(f"time>@cutoff")
+        print(cutoff)
+        newFrame = frame.query("time>@cutoff")
+        print(newFrame.head)
     return newFrame
 
 # Failed turn detection that had to do with gradients 
