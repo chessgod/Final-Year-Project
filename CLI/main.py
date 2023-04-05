@@ -48,8 +48,6 @@ if(trimDecision == videoDuration):
     videoDecision = input()
     trimmedVideo = vp.videoTrim(fullVideo, videoDecision, offset)
 else:
-    print("ERROR!! I've jsut discovered that trimming the beggining of GPX file causes an error, I'm trying")
-    print("to fix it now, can't see what is causing it tho. Just use 'e' for now.")
     print("The GPX is longer than the video. Would you like the end or the beggining to be trimmed? (e or b)")
     gpxDecision = input()
     dftrimmedInfo = gp.gpxTrim(dfrunInfo, gpxDecision, offset)

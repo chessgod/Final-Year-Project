@@ -23,13 +23,10 @@ def gpxTrim(frame, decision, offset):
        startTime = frame["time"].iloc[-1]
        cutoff = startTime - offsetDelta
        newFrame = frame.query("time<@cutoff")
-       print(newFrame.head)
     elif(decision == "b"):
         endTime = frame["time"].iloc[0]
         cutoff = endTime + offsetDelta
-        print(cutoff)
         newFrame = frame.query("time>@cutoff")
-        print(newFrame.head)
     return newFrame
 
 # Failed turn detection that had to do with gradients 
@@ -125,6 +122,8 @@ def angleTurnDetection(coords, map, frame):
 # no real turn detection.
 def velocityTurnDetection(frame, map):
     velocityList = [0]
+    # Needed when cropping beggining of gpx
+    frame.reset_index(inplace=True)
     for x in range(len(frame.latitude)-1):
             # Tried to remove some GPS inaccuracies
             geodesicDistance = geodesic([frame.latitude[x], frame.longitude[x]],[frame.latitude[x+1], frame.longitude[x+1]]).meters
