@@ -10,29 +10,32 @@ import tensorflow as tf;
 from sklearn.model_selection import train_test_split;
 import datetime as dt;
 
-# If the 2 points are A(Xa,Ya) and B(Xb,Yb), the gradient of the line is:
-# m = (Yb-Ya)/(Xb-Xa) — that is, vertical change divided by horizontal change.
-tacksDict = [{}]
-gybesDict = [{}]
-
+# FUnction for trimming GPX data if longer than video
 def gpxTrim(frame, decision, offset):
+
     offset = round(offset)
+    # Turninng offset into timedelta for ease of use
     offsetDelta = dt.timedelta(seconds=offset)
+
+    # Differentiation between end or beggining cutoff 
+    # as you can see a lot of repeated code.
     if(decision == "e"):
        startTime = frame["time"].iloc[-1]
-    #    print(startTime)
-    #    print(offsetDelta)
        cutoff = startTime - offsetDelta
-    #    print(cutoff)
        newFrame = frame.query("time<@cutoff")
     elif(decision == "b"):
         endTime = frame["time"].iloc[0]
         cutoff = endTime + offsetDelta
         newFrame = frame.query(f"time>@cutoff")
     return newFrame
+
+# Failed turn detection that had to do with gradients 
+# Don't bother with this, I'm only keeping it to use in the report later
+# it is not used in the actual program.
 def lineTurnDetection(c, map):
     x  = 0
     while x < len(c)-6:
+        # Very crude code for working out line gradients
         gradient1 = (c[x][1] - c[x+1][0]) / (c[x+1][1]) - (c[x][0])
         gradient2 = (c[x+1][1] - c[x+2][0]) / (c[x+2][1]) - (c[x+1][0])
         gradient3 = (c[x+2][1] - c[x+3][0]) / (c[x+3][1]) - (c[x+2][0])
@@ -45,40 +48,43 @@ def lineTurnDetection(c, map):
             folium.PolyLine(tempCoords,color='blue',weight=4).add_to(map)
         x+=6
 
+# The real turn detection function
 def angleTurnDetection(coords, map, frame):
-    x = 0
-    angleList = []
-    turnList = []
-    manouverList = []
+    x = 0 # Counter variable
+    angleList = [] #Angle List that will later be added to dataframe
+    turnList = [] #Turn List that will later be added to dataframe
+    manouverList = [] #Manouver List that will later be added to dataframe
 
+    # Collecting user input
     print("What was the wind direction during your sail?(N,S,E,W,NE,SE..)")
     windDirection = input()
 
     while x < len(coords)-3:
-        # Convert the points to numpy latitude/longitude radians space
+        # Convert the points to numpy latitude/longitude
         a = np.radians(np.array(coords[x]))
         b = np.radians(np.array(coords[x+1]))
         c = np.radians(np.array(coords[x+2]))
 
-        # Vectors in latitude/longitude space
-        avec = a - b
-        cvec = c - b
+        # Calculate vectors between points
+        aVec = a - b
+        cVec = c - b
 
         # Adjust vectors for changed longitude scale at given latitude into 2D space
         lat = b[0]
-        avec[1] *= math.cos(lat)
-        cvec[1] *= math.cos(lat)
+        aVec[1] *= math.cos(lat)
+        cVec[1] *= math.cos(lat)
 
-        # Find the angle between the vectors in 2D space
+        # Calculate the angle 
         try:
-            angle2deg = np.degrees(math.acos(np.dot(avec, cvec) / (np.linalg.norm(avec) * np.linalg.norm(cvec))))
+            angle2deg = np.degrees(math.acos(np.dot(aVec, cVec) / (np.linalg.norm(aVec) * np.linalg.norm(cVec))))
             
         except ValueError:
-            # print(angle2deg)
             pass
         angleList.append(angle2deg)
+
+        # Thresholding code I will change this with full and by angles etc.
         if(angle2deg<=150):    
-            # manouver = manouverType(coords[x],coords[x+1],coords[x+2])
+            
             turnList.append(1)
             # Determining type of manouver
             manouverResult = manouverType(a,b, windDirection)
@@ -86,6 +92,9 @@ def angleTurnDetection(coords, map, frame):
             # Adding manouver to list, later added to dataframe
             manouverList.append(manouverResult)
             folium.CircleMarker([coords[x][0],coords[x][1]],color='blue',weight=4).add_child(folium.Popup(manouverResult)).add_to(map)
+
+            # THis adds more markers to better visualise the turn, uncomment if you're curious,
+            # it has no impact on performance.
 
             # try:
             #     for i in range(6):
@@ -98,6 +107,8 @@ def angleTurnDetection(coords, map, frame):
         x+=1
     # Account for the three dropped points in while loop
     for x in range(3):
+        # Don't know how to do this better, the lists are missing the last 
+        # 3 elements as a result of removing them in the beggining of the while loop.
         angleList.append(0)
         turnList.append(0)
         manouverList.append(0)
@@ -107,19 +118,29 @@ def angleTurnDetection(coords, map, frame):
     frame['turn'] = turnList
     frame['manouverType'] = manouverList
 
+# Velocity turn detection algorithm, this is now really used for velocity values,
+# no real turn detection.
 def velocityTurnDetection(frame, map):
-    # distance = []
     velocityList = [0]
     for x in range(len(frame.latitude)-1):
+            # Tried to remove some GPS inaccuracies
             geodesicDistance = geodesic([frame.latitude[x], frame.longitude[x]],[frame.latitude[x+1], frame.longitude[x+1]]).meters
             # time = intoSeconds(frame.time[x]) -  intoSeconds(frame.time[x+1])
+
+            # Calculating difference in time between two points
             time = np.datetime64(frame.time[x+1]) - np.datetime64(frame.time[x])
-            # print(time)
+
+            # Converting to seconds
             seconds = time / np.timedelta64(1, 's')
-            # print(seconds)
+
+            # Velocity calculation
             velocity = geodesicDistance/seconds
+
             velocityList.append(velocity)
     frame['velocity'] = velocityList
+
+    # ----------- The below section was for turn detection, Ill use it in report, but not in program ---------
+
     # avgVelocity = frame.velocity.mean()
     # # print(avgVelocity)
     # lowerQuartile = frame.velocity.quantile([0.25])
@@ -133,9 +154,14 @@ def velocityTurnDetection(frame, map):
     #         folium.CircleMarker([x['latitude'],x['longitude']],color='blue',weight=4).add_to(map)
     #         # folium.Marker([x['latitude'],x['longitude']],popup=x['velocity'],color='blue',weight=4).add_to(map)
 
+    # ---------- END OF SECTION --------------
 
+
+# Function for determining turn type
 def manouverType(first, second, direction):
     # code for working out if tack or gybe
+
+    # Dictionary with degree variables for compass directions
     compassDegrees = {
         "N": 90,
         "NE": 45,
@@ -169,6 +195,9 @@ def manouverType(first, second, direction):
         else:
             return "TS"
 
+# Failed attempt at aiTurnDetection, only being kept for report
+# You're welcome to take a look, it's my first attempt at working with AI
+# and likely riddled with issues.
 def aiTurnDetection(df):
     model = tf.keras.models.Sequential()
     xVals = df.drop(['turn','time'], axis=1)
@@ -191,6 +220,8 @@ def aiTurnDetection(df):
     # print("Training data results: " + results)
     model.save("laser-in.h5")
 
+# Function to load trained model on to unseen data
+# Same as above, probably riddled with issues.
 def aiTurnDetection_Load(df):
     model = tf.keras.models.load_model("laser-in.h5")
     xVals = df.drop(['turn','time'], axis=1)
