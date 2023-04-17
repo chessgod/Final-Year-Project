@@ -26,7 +26,7 @@ dfrunInfo = pd.DataFrame([
 gpxDuration = dfrunInfo["time"].iloc[-1] - dfrunInfo["time"].iloc[0]
 
 # Function that concatenates different clips inputted by the user
-fullVideo, videoDuration = vp.combineClips()
+fullVideo, videoDuration = vp.combineClips(None)
 
 # This ensures that "trimmedVideo" always has a value,
 # as it is used on line 119. However, if the video has not been trimmed

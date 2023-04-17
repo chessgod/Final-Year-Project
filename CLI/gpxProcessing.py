@@ -49,15 +49,15 @@ def lineTurnDetection(c, map):
         x+=6
 
 # The real turn detection function
-def angleTurnDetection(coords, map, frame):
+def angleTurnDetection(coords, map, frame, direction):
     x = 0 # Counter variable
     angleList = [] #Angle List that will later be added to dataframe
     turnList = [] #Turn List that will later be added to dataframe
     manouverList = [] #Manouver List that will later be added to dataframe
 
-    # Collecting user input
-    print("What was the wind direction during your sail?(N,S,E,W,NE,SE..)")
-    windDirection = input()
+    # # Collecting user input
+    # print("What was the wind direction during your sail?(N,S,E,W,NE,SE..)")
+    # windDirection = input()
 
     while x < len(coords)-3:
         # Convert the points to numpy latitude/longitude
@@ -87,7 +87,7 @@ def angleTurnDetection(coords, map, frame):
             
             turnList.append(1)
             # Determining type of manouver
-            manouverResult = manouverType(a,b, windDirection)
+            manouverResult = manouverType(a,b, direction)
 
             # Adding manouver to list, later added to dataframe
             manouverList.append(manouverResult)

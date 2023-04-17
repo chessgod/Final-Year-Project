@@ -25,58 +25,102 @@ import videoProcessing as vp;
 # from api import apiData;
 import timeit;
 
+def gpxDfCreation(gpxfile):
 
-def main(gpxFile, videoFiles):
-    # print("here")
     # Reading GPX file 
-    gpx = gpxpy.parse(gpxFile)
+    gpx = gpxpy.parse(gpxfile)
     segment = gpx.tracks[0].segments[0]
 
     # Loading GPX values into dataframe
     # This takes quite a while, not been able to make it faster.
+    # start = timeit.default_timer()
     dfrunInfo = pd.DataFrame([
     {   'latitude': point.latitude,
         'longitude': point.longitude,
         'time': point.time,
     }for point in segment.points])
-
-    # print(dfrunInfo.head)
+    # stop = timeit.default_timer()
+    # result = stop-start
+    # print("GPX frame: ", result)
 
     #Calculation to get how long the gpx data is (in time)
     gpxDuration = dfrunInfo["time"].iloc[-1] - dfrunInfo["time"].iloc[0]
 
+    return dfrunInfo, gpxDuration.total_seconds()
+
+def videoConcat(videoFiles, pbar):
+
     # Function that concatenates different clips inputted by the user
-    fullVideo, videoDuration = vp.combineClips(videoFiles) 
+
+    fullVideo, videoDuration = vp.combineClips(videoFiles,pbar)
+
+    return fullVideo, videoDuration
+    
+def timeDifference(gpxDuration, videoDuration):
+
+    # Determining if video or gpx is longer
+    trimDecision = max(videoDuration, gpxDuration)
+    offset = max(videoDuration, gpxDuration) - min(videoDuration, gpxDuration)
+
+    return offset, trimDecision
+
+def trim(trimType, decision, offset, frame=None, fullVideo=None):
+    
+    if(trimType=="Video"):
+        trimmedVideo = vp.videoTrim(fullVideo, decision, offset)
+        return trimmedVideo
+    else:
+        trimmedDf = gp.gpxTrim(frame, decision, offset)
+        return trimmedDf
+    
+
+def main(frame, video, manouver, direction, clips):
+    # print("here")
+    # Reading GPX file 
+    # gpx = gpxpy.parse(gpxFile)
+    # segment = gpx.tracks[0].segments[0]
+
+    # # Loading GPX values into dataframe
+    # # This takes quite a while, not been able to make it faster.
+    # dfrunInfo = pd.DataFrame([
+    # {   'latitude': point.latitude,
+    #     'longitude': point.longitude,
+    #     'time': point.time,
+    # }for point in segment.points])
+
+    # print(dfrunInfo.head)
+
+    # fullVideo, videoDuration = vp.combineClips(videoFiles)
 
     # This ensures that "trimmedVideo" always has a value,
     # as it is used on line 119. However, if the video has not been trimmed
     # it will not have a value, throwing an error.
-    trimmedVideo = fullVideo 
+    # trimmedVideo = fullVideo 
 
-    # Turns gpxDuration from pandas timestamp to seconds
-    gpxDuration = gpxDuration.total_seconds()
+    # # Turns gpxDuration from pandas timestamp to seconds
+    # gpxDuration = gpxDuration.total_seconds()
 
-    # Determining if video or gpx is longer
-    trimDecision = max(videoDuration, gpxDuration)
+    # # Determining if video or gpx is longer
+    # trimDecision = max(videoDuration, gpxDuration)
 
-    #Working out the difference in seconds between gpxDuration and videoDuration
-    offset = max(videoDuration, gpxDuration) - min(videoDuration, gpxDuration)
+    # #Working out the difference in seconds between gpxDuration and videoDuration
+    # offset = max(videoDuration, gpxDuration) - min(videoDuration, gpxDuration)
 
-    # Simple If statement based on which of the two is longer
+    # # Simple If statement based on which of the two is longer
 
-    if(trimDecision == videoDuration):
-        print("The video is longer than the GPX file. Would you like the end or the beggining of the video to be trimmed? (e or b)")
-        videoDecision = input()
-        trimmedVideo = vp.videoTrim(fullVideo, videoDecision, offset)
-    else:
-        print("The GPX is longer than the video. Would you like the end or the beggining to be trimmed? (e or b)")
-        gpxDecision = input()
-        dftrimmedInfo = gp.gpxTrim(dfrunInfo, gpxDecision, offset)
+    # if(trimDecision == videoDuration):
+    #     print("The video is longer than the GPX file. Would you like the end or the beggining of the video to be trimmed? (e or b)")
+    #     videoDecision = input()
+    #     trimmedVideo = vp.videoTrim(fullVideo, videoDecision, offset)
+    # else:
+    #     print("The GPX is longer than the video. Would you like the end or the beggining to be trimmed? (e or b)")
+    #     gpxDecision = input()
+    #     dftrimmedInfo = gp.gpxTrim(frame, gpxDecision, offset)
 
     # These values are used later when rendering the map, so that the route is centered
-    meanLat = dftrimmedInfo.latitude.mean()
+    meanLat = frame.latitude.mean()
 
-    meanLong = dftrimmedInfo.longitude.mean()
+    meanLong = frame.longitude.mean()
 
     # ----------------------- IGNORE THIS SECTION OF COMMENTED CODE  -----------------------
 
@@ -99,13 +143,13 @@ def main(gpxFile, videoFiles):
     # stop = timeit.default_timer()
     # print(stop - start)
 
-    # windAPI = apiData(meanLat, meanLong, dfrunInfo['time'].iloc[0])
+    # windAPI = apiData(meanLat, meanLong, frame['time'].iloc[0])
 
     # ----------------------- END OF SECTION   -----------------------
 
 
     # This extracts just the coordinates from the dataframe
-    coords = [tuple(x) for x in dftrimmedInfo[['latitude','longitude']].to_numpy()]
+    coords = [tuple(x) for x in frame[['latitude','longitude']].to_numpy()]
 
 
     # This uses the popular library "folium" to create the map
@@ -129,16 +173,16 @@ def main(gpxFile, videoFiles):
 
     # -------------- TURN DETECTION CODE ----------------
 
-    gp.velocityTurnDetection(dftrimmedInfo, routeMap)
-    gp.angleTurnDetection(coords,routeMap, dftrimmedInfo)
-    # gp.aiTurnDetection(dfrunInfo)
-    # gp.aiTurnDetection_Load(dfrunInfo)
+    gp.velocityTurnDetection(frame, routeMap)
+    gp.angleTurnDetection(coords,routeMap, frame)
+    # gp.aiTurnDetection(frame)
+    # gp.aiTurnDetection_Load(frame)
 
     # Creates a new frame with just Turns, used in splitVideo()
-    turnFrame = dftrimmedInfo[dftrimmedInfo['turn'] == 1]
+    turnFrame = frame[frame['turn'] == 1]
 
     # Calls function that will generate the final video
-    trainingVideo = vp.splitVideo(trimmedVideo,turnFrame)
+    trainingVideo = vp.splitVideo(video,turnFrame)
 
     # Outputs the final map to the browser
     return routeMap, trainingVideo

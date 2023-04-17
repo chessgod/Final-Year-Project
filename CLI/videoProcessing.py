@@ -1,19 +1,30 @@
 import moviepy.editor as mp
 import timeit
+import tempfile
 
 # Function for concatenating clips
-def combineClips():
+def combineClips(files, progressBar=None):
+    formattedArray = []
+    if(files == None):
+        print("Please input all the clips. (filepaths separated by one space each)")
+        userInput = input()
+        clipArray = userInput.split(" ")
+        #Taking the inputted string and turning it into a VideoClip with moviepy
+        formattedArray = [mp.VideoFileClip(clip) for clip in clipArray]
 
-    print("Please input all the clips. (filepaths separated by one space each)")
-    userInput = input()
-    clipArray = userInput.split(" ")
+    else:
+        for i, clip in enumerate(files):
+            # file_bytes = clip.read()
+            tmp_file = tempfile.NamedTemporaryFile(delete=False)
+            tmp_file.write(clip.read())
+            video = mp.VideoFileClip(tmp_file.name)
+            formattedArray.append(video)
 
-    #Taking the inputted string and turning it into a VideoClip with moviepy
-    formattedArray = [mp.VideoFileClip(clip) for clip in clipArray]
+            if progressBar:
+                progressBar.progress((i+1) / len(files),text=f"Video number {i} sucessfully processed...")
 
     #Concatenating all inputted videos into one
     finalVideo = mp.concatenate_videoclips(formattedArray)
-
     return finalVideo, finalVideo.duration
 
 # Function for trimming the video if it is longer than GPX
@@ -82,5 +93,7 @@ def splitVideo(original, frame):
     all = mp.clips_array([clipList])
 
     # Rendering of the vieo, this takes quite a while and no matter what I do it does not get faster :(
-    all.write_videofile("testing.mp4", audio=False, threads=300, fps=30, preset="ultrafast", codec="libx264")
+    # all.write_videofile("testing.mp4", audio=False, threads=300, fps=30, preset="ultrafast", codec="libx264")
+
+    return all
     # all.write_gif("testing.gif")
