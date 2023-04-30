@@ -174,7 +174,7 @@ def main(frame, video, manouver, direction, clips):
     # -------------- TURN DETECTION CODE ----------------
 
     gp.velocityTurnDetection(frame, routeMap)
-    gp.angleTurnDetection(coords,routeMap, frame)
+    gp.angleTurnDetection(coords,routeMap, frame, direction)
     # gp.aiTurnDetection(frame)
     # gp.aiTurnDetection_Load(frame)
 
@@ -182,7 +182,7 @@ def main(frame, video, manouver, direction, clips):
     turnFrame = frame[frame['turn'] == 1]
 
     # Calls function that will generate the final video
-    trainingVideo = vp.splitVideo(video,turnFrame)
+    trainingVideo = vp.splitVideo(video,turnFrame, manouver=manouver, numVideos=clips)
 
     # Outputs the final map to the browser
     return routeMap, trainingVideo

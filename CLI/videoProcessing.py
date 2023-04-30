@@ -39,7 +39,7 @@ def videoTrim(video, decision, offset):
     return video
 
 # Fucntion for splitting the video into turns, and outputting it
-def splitVideo(original, frame):
+def splitVideo(original, frame, manouver=None, numVideos=None):
     validDecision = False # Used for input validation
     clipList = [] #Will store clips of turns
     tacksFrame = frame[frame['manouverType'].isin(["TS","TP"])].copy() # DataFrame with just tacks
@@ -51,20 +51,21 @@ def splitVideo(original, frame):
     startTime = int(startTime.timestamp())
 
     # Input validation from user
-    while validDecision == False:
-        print("Would you like to see tacks or gybes? (t) , (g)")
-        decision = input()
-        if(decision == "t" or decision == "g"):
-            validDecision = True
-            break
-        print("That is not a valid input.")
+    if manouver == None:
+        while validDecision == False:
+            print("Would you like to see tacks or gybes? (Tacks) , (Gybes)")
+            manouver = input()
+            if(manouver == "Tacks" or manouver == "Gybes"):
+                validDecision = True
+                break
+            print("That is not a valid input.")
 
-    print("How many videos would you like to see?")
-    numVideos = input()
+        print("How many videos would you like to see?")
+        numVideos = input()
 
     # If statement on wether the user wants to see tacks or gybes
     # As you can see not very optimised code, a lot of repeated lines
-    if(decision == "t"):
+    if(manouver == "Tacks"):
         # Taking a random number of turns dependant on how many the user wants to see
         sampleFrame = tacksFrame.sample(n=int(numVideos))
         # Iterating through sampleFrame

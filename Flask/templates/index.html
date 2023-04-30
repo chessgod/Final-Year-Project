@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Final Year Project</title>
+{% endblock %}
+
+{% block body %}
+{% if offset %}
+<div class="modalWrapper">
+    <div class="modalDiv">
+        <h1 class="modalInfo">Your {{trimDecision}} is too long. What part would you like to trim?</h1>
+        <div class="modaOptions">
+            <form action="/popUp", method="POST">
+                <input type="radio" id="modalBeggining" value="b" name="trimType" class="radioButton">
+                <label for="modalBeggining" class="radioLabel">Beggining</label>
+                <input type="radio" id="modalEnd" value="e" name="trimType" class="radioButton">
+                <label for="gybeRadio" class="radioLabel">End</label>
+                <input type="radio" id="modalBoth" value="bo" name="trimType" class="radioButton">
+                <label for="gybeRadio" class="radioLabel">Both</label>
+                <button type="submit" class="submitButton">Trim</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="titleDiv">
+    <h1 class="titleHeader">Automated Generation of Sailing Training Videos ⛵🤖</h1>
+</div>
+<div class="threeColumnsDiv">
+    <div class="uploadDiv">
+        <form action="/fileUpload", method="POST", enctype="multipart/form-data">
+            <div class="gpxUpload">
+                    <h3>Please upload your GPX file below.</h3>
+                    <!-- code for gpx upload -->
+                    <input type="file" name="gpxFile" class="fileInput" accept=".gpx" max="1">
+            </div>
+            <div class="videoUpload">
+                    <h3>Please upload your Video files below.</h3>
+                    <div class="videoInput">
+                        <input type="file" name="videoFiles" class="fileInput" accept=".mp4" multiple=true>
+                        <span></span>
+                    </div>   
+            </div>
+            <button type="submit" class="submitButton">Upload</button>
+        </form>
+    </div>
+    <div class="mainDiv">
+        {% if not upload %}
+            <h2> 👈 Upload your files to get started!!</h2>
+        {% endif %}
+        {% if map %}
+
+        {% endif %}
+        {% if video %}
+
+        {% endif %}
+        
+    </div>
+    {% if options %}
+    <div class="optionsDiv">
+        <h2 style="margin-left: 10px;">Please Choose your options.</h2>
+        <div class="optionsForm">
+            <form action="/options_selected">
+                <div class="tacksOrGybes">
+                    <h3>Do you want to see tacks or gybes?</h3>
+                    <div class="radioWrapper">
+                        <input type="radio" id="tackRadio" value="tack" name="maneuver" class="radioButton">
+                        <label for="tackRadio" class="radioLabel">Tack</label>
+                        <input type="radio" id="gybeRadio" value="gybe" name="maneuver" class="radioButton">
+                        <label for="gybeRadio" class="radioLabel">Gybe</label>
+                    </div>
+                </div>
+                <div class="windDirection">
+                    <h3>What was the wind direction during your sail?</h3>
+                    <select name="direction" id="direction" class="dropdown">
+                        <option value="n">North</option>
+                        <option value="ne">North East</option>
+                        <option value="e">East</option>
+                        <option value="se">South East</option>
+                        <option value="s">South</option>
+                        <option value="sw">South West</option>
+                        <option value="w">West</option>
+                        <option value="nw">North West</option>
+                    </select>
+                </div>
+                <div class = "numberOfClips">
+                    <h3>How many clips would you like to see displayed?</h3>
+                    <p>Current value: <span id="clipValue"></span></p>
+                    <input class="range" type="range" name="clips" id="clipSlider" min="1" max="8" step="1">
+                </div>
+                <button type="submit" class="submitButton">Submit</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+
+{% endblock %}

@@ -23,11 +23,15 @@ def gpxTrim(frame, decision, offset):
        startTime = frame["time"].iloc[-1]
        cutoff = startTime - offsetDelta
        newFrame = frame.query("time<@cutoff")
+       return newFrame
     elif(decision == "b"):
         endTime = frame["time"].iloc[0]
+        # endTime = pd.to_datetime(endTime)
+        print(endTime)
+        print(type(endTime))
         cutoff = endTime + offsetDelta
         newFrame = frame.query("time>@cutoff")
-    return newFrame
+        return newFrame
 
 # Failed turn detection that had to do with gradients 
 # Don't bother with this, I'm only keeping it to use in the report later
