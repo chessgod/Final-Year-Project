@@ -59,8 +59,6 @@ def fileUpload():
                 'time': point.time,
             }for point in segment.points])
             
-            print(dfrunInfo.dtypes)
-
             dfrunInfo.to_csv(csvLocation(),index=False)
 
             #Calculation to get how long the gpx data is (in time)
@@ -109,7 +107,6 @@ def popUp():
         else:
             
             frame = pd.read_csv(csvLocation(),  dtype=types, parse_dates=['time'])
-            print(frame.head())
             trimmedDf = gp.gpxTrim(frame, userTrim, offset)
             # print(userTrim)
             # print(offset)
@@ -140,9 +137,11 @@ def optionSelection():
     }
     frame = pd.read_csv(csvLocation(), dtype=types, parse_dates=['time'])
     video = mp.editor.VideoFileClip("static/files/fullVideo.mp4")
-    direction = request.form.get("direction")
-    manouver = request.form.get("maneuver")
-    clips = request.form.get("clips")
+    if request.method == "POST":
+        direction = request.form.get("direction")
+        manouver = request.form.get("maneuver")
+        clips = request.form.get("clips")
+
     meanLat = frame.latitude.mean()
 
     meanLong = frame.longitude.mean()
@@ -177,9 +176,7 @@ def optionSelection():
 
     # Calls function that will generate the final video
     trainingVideo = vp.splitVideo(video,turnFrame, manouver=manouver, numVideos=clips)
-
-    print(type(trainingVideo))
-
+    video.close()
     return render_template("index.html", upload=True, video=trainingVideo, map=routeMap._repr_html_())
 
 def unserializeDf(frame):

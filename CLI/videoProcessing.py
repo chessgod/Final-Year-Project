@@ -46,6 +46,7 @@ def splitVideo(original, frame, manouver=None, numVideos=None):
     gybesFrame = frame[frame['manouverType'].isin(["GS","GP"])].copy() # DataFrame with just gybes
 
     # Getting start time of video
+    # print("HEAD OF FRAME", frame.head)
     startTime = frame["time"].iloc[0]
     # Converting to seconds
     startTime = int(startTime.timestamp())
@@ -92,6 +93,8 @@ def splitVideo(original, frame, manouver=None, numVideos=None):
 
     # Creates a moviepy clips_array, which is what will be rendered
     all = mp.clips_array([clipList])
+
+    all.write_videofile("static/files/final.mp4", audio=False)
 
     # Rendering of the vieo, this takes quite a while and no matter what I do it does not get faster :(
     # all.write_videofile("testing.mp4", audio=False, threads=300, fps=30, preset="ultrafast", codec="libx264")

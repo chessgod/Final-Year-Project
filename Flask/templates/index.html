@@ -49,10 +49,12 @@
             <h2> 👈 Upload your files to get started!!</h2>
         {% endif %}
         {% if map %}
-
+            {{ map | safe }}
         {% endif %}
         {% if video %}
-
+            <div>
+                <video src="{{ url_for('static', filename='files/final.mp4') }}" width="640" height="480" autoplay></video>
+            </div>
         {% endif %}
         
     </div>
@@ -60,27 +62,27 @@
     <div class="optionsDiv">
         <h2 style="margin-left: 10px;">Please Choose your options.</h2>
         <div class="optionsForm">
-            <form action="/options_selected">
+            <form action="/options_selected", method="POST">
                 <div class="tacksOrGybes">
                     <h3>Do you want to see tacks or gybes?</h3>
                     <div class="radioWrapper">
-                        <input type="radio" id="tackRadio" value="tack" name="maneuver" class="radioButton">
+                        <input type="radio" id="tackRadio" value="Tacks" name="maneuver" class="radioButton">
                         <label for="tackRadio" class="radioLabel">Tack</label>
-                        <input type="radio" id="gybeRadio" value="gybe" name="maneuver" class="radioButton">
+                        <input type="radio" id="gybeRadio" value="Gybes" name="maneuver" class="radioButton">
                         <label for="gybeRadio" class="radioLabel">Gybe</label>
                     </div>
                 </div>
                 <div class="windDirection">
                     <h3>What was the wind direction during your sail?</h3>
                     <select name="direction" id="direction" class="dropdown">
-                        <option value="n">North</option>
-                        <option value="ne">North East</option>
-                        <option value="e">East</option>
-                        <option value="se">South East</option>
-                        <option value="s">South</option>
-                        <option value="sw">South West</option>
-                        <option value="w">West</option>
-                        <option value="nw">North West</option>
+                        <option value="N">North</option>
+                        <option value="NE">North East</option>
+                        <option value="E">East</option>
+                        <option value="SE">South East</option>
+                        <option value="S">South</option>
+                        <option value="SW">South West</option>
+                        <option value="W">West</option>
+                        <option value="NW">North West</option>
                     </select>
                 </div>
                 <div class = "numberOfClips">

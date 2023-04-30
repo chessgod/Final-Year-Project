@@ -27,8 +27,6 @@ def gpxTrim(frame, decision, offset):
     elif(decision == "b"):
         endTime = frame["time"].iloc[0]
         # endTime = pd.to_datetime(endTime)
-        print(endTime)
-        print(type(endTime))
         cutoff = endTime + offsetDelta
         newFrame = frame.query("time>@cutoff")
         return newFrame
