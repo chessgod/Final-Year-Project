@@ -1,3 +1,4 @@
+import math
 import moviepy.editor as mp
 import timeit
 import tempfile
@@ -42,6 +43,7 @@ def videoTrim(video, decision, offset):
 def splitVideo(original, frame, manouver=None, numVideos=None):
     validDecision = False # Used for input validation
     clipList = [] #Will store clips of turns
+    finalList = []
     tacksFrame = frame[frame['manouverType'].isin(["TS","TP"])].copy() # DataFrame with just tacks
     gybesFrame = frame[frame['manouverType'].isin(["GS","GP"])].copy() # DataFrame with just gybes
 
@@ -91,8 +93,36 @@ def splitVideo(original, frame, manouver=None, numVideos=None):
             temp = original.subclip(start, end)
             clipList.append(temp)
 
+
+    # clipListLen = round(len(clipList)/2)
+    # # splitting list into 2 'columns'
+    # list = [clipList[0:clipListLen], clipList[clipListLen:]]
+    # # if the last element has only one element adds a None as the second one to prevent an index out of range error later
+    # if len(list[-1]) == 1:
+    #     list[-1] = [list[-1][0], None]
+    # print('list print')
+    # print(list)
+    # final_list = []
+
+    # # creates the list with two clip length lists inside
+    # for i in range(len(list)):
+    #     final_list.append([list[0][i], list[1][i]])
+
+    # print('final list print')
+    # print(final_list)
+
     # Creates a moviepy clips_array, which is what will be rendered
-    all = mp.clips_array([clipList])
+    counter = 0
+    while counter<len(clipList):
+        try:
+            finalList.append([clipList[counter],clipList[counter+1]])
+        except:
+            finalList.append([clipList[counter]])
+        counter+=2
+
+
+       
+    all = mp.clips_array(finalList)
 
     all.write_videofile("static/files/final.mp4", audio=False)
 

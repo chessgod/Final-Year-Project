@@ -27,6 +27,7 @@
     <h1 class="titleHeader">Automated Generation of Sailing Training Videos ⛵🤖</h1>
 </div>
 <div class="threeColumnsDiv">
+    {% if not upload %}
     <div class="uploadDiv">
         <form action="/fileUpload", method="POST", enctype="multipart/form-data">
             <div class="gpxUpload">
@@ -44,16 +45,22 @@
             <button type="submit" class="submitButton">Upload</button>
         </form>
     </div>
+    {% endif %}
     <div class="mainDiv">
         {% if not upload %}
             <h2> 👈 Upload your files to get started!!</h2>
         {% endif %}
+
         {% if map %}
-            {{ map | safe }}
+            <div class="mapDiv">
+                <h2>Map with route and detected turns:</h2>
+                {{ map | safe }}
+            </div> 
         {% endif %}
         {% if video %}
-            <div>
-                <video src="{{ url_for('static', filename='files/final.mp4') }}" width="640" height="480" autoplay></video>
+            <div class="videoDiv">
+                <h2>Training Video:</h2>
+                <video class = "videoStyle" src="{{ url_for('static', filename='files/final.mp4') }}" controls></video>
             </div>
         {% endif %}
         
@@ -88,7 +95,7 @@
                 <div class = "numberOfClips">
                     <h3>How many clips would you like to see displayed?</h3>
                     <p>Current value: <span id="clipValue"></span></p>
-                    <input class="range" type="range" name="clips" id="clipSlider" min="1" max="8" step="1">
+                    <input class="range" type="range" name="clips" id="clipSlider" min="2" max="8" step="2">
                 </div>
                 <button type="submit" class="submitButton">Submit</button>
             </form>

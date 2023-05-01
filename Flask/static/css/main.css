@@ -131,7 +131,26 @@ h3{
     width: 50%;
     margin-right: 10px;
     background-color: var(--secondary-color);
+    padding: 15px;
 
+}
+
+.mapDiv{
+    height: 50%;
+    width: 100%;
+    overflow: hidden;
+    /* background-color: green; */
+}
+
+.videoDiv{
+    /* background-color: red; */
+    overflow: hidden;
+    height: 50%;
+}
+
+.videoStyle{
+    height: 100%;
+    width: 100%;
 }
 
 .optionsDiv{

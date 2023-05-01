@@ -33,8 +33,10 @@ app.config['UPLOAD_FOLDER'] = "static/files"
 @app.route('/')
 def index():
     try:
-        os.remove(csvLocation())
-        os.remove(videoLocation())
+        # os.remove(csvLocation())
+        # os.remove(videoLocation())
+        # os.remove("static/files/final.mp4")
+        pass
     except:
         pass
     return render_template("index.html")
@@ -53,12 +55,13 @@ def fileUpload():
 
             # Loading GPX values into dataframe
             # This takes quite a while, not been able to make it faster.
+            # print("here")
             dfrunInfo = pd.DataFrame([
             {   'latitude': point.latitude,
                 'longitude': point.longitude,
                 'time': point.time,
             }for point in segment.points])
-            
+            # print("past")
             dfrunInfo.to_csv(csvLocation(),index=False)
 
             #Calculation to get how long the gpx data is (in time)
@@ -68,8 +71,9 @@ def fileUpload():
             # print("GPX Duration: ", gpxDuration)
 
         if videos:
-            fullVideo, videoDuration = vp.combineClips(videos)            
-            fullVideo.write_videofile("static/files/fullVideo.mp4")
+            # print("combining")
+            fullVideo, videoDuration = vp.combineClips(videos)         
+            # fullVideo.write_videofile("static/files/fullVideo.mp4")
             session["videoDuration"] = videoDuration
             # print("Video Duration: ", videoDuration)
         # return dfrunInfo, gpxDuration.total_seconds()
@@ -157,8 +161,8 @@ def optionSelection():
         # Determines how zoomed in the map is (satellite POV)
         zoom_start = 14,
         tiles = 'OpenStreetMap',
-        width = 1024,
-        height = 600,
+        # width = 1024,
+        # height = 600,
     )
 
     # This is the code that creates the red line, showing the sail
@@ -175,9 +179,9 @@ def optionSelection():
     turnFrame = frame[frame['turn'] == 1]
 
     # Calls function that will generate the final video
-    trainingVideo = vp.splitVideo(video,turnFrame, manouver=manouver, numVideos=clips)
+    # trainingVideo = vp.splitVideo(video,turnFrame, manouver=manouver, numVideos=clips)
     video.close()
-    return render_template("index.html", upload=True, video=trainingVideo, map=routeMap._repr_html_())
+    return render_template("index.html", upload=True, video=True, map=routeMap._repr_html_())
 
 def unserializeDf(frame):
 #   WRITE DF TO CSV, SAVE ON DISK AND LOAD IT WHEN NECESSARY
