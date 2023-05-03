@@ -36,7 +36,15 @@ body{
     padding: 15px;
     height: 30%;
     width: 30%;
+    padding-bottom: 20px;
+    padding-top: 0;
 
+}
+
+.modalOptions{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
 }
 
 .modalInfo {
@@ -135,22 +143,76 @@ h3{
 
 }
 
-.mapDiv{
-    height: 50%;
+.mapVideoDiv{
+    border-radius: 5px;
+    /* height: 100%; */
     width: 100%;
-    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: top;
+    /* padding: 5px; */
+    /* overflow: hidden; */
+    /* background-color: white; */
+}
+.mapDiv{
+    border: 1px var(--primary-color) solid;
+    background-color: var(--secondary-color);
+    border-radius: 5px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    width: 45%;
+    /* overflow: hidden; */
     /* background-color: green; */
 }
 
 .videoDiv{
+    border: 1px var(--primary-color) solid;
+    background-color: var(--secondary-color);
+    border-radius: 5px;
+    padding: 15px;
+    margin-top: 0px;
+    display: flex;
+    flex-direction: column;
     /* background-color: red; */
-    overflow: hidden;
-    height: 50%;
+    width: 45%;
+    margin-right: 10px;
+    /* overflow: hidden;
+    height: 100%; */
+
+}
+
+.titles{
+    margin-bottom: 15px;
 }
 
 .videoStyle{
-    height: 100%;
-    width: 100%;
+   /* background-color: yellow; */
+   width: 100%;
+}
+
+
+.downloadButton{
+    display: inline-block;
+    border: var(--primary-color) 1px solid;
+    border-radius: 3px;
+    padding: 8px 2px;
+    margin: 10px;
+    /* width: 90%; */
+    background-color: var(--primary-color);
+    color: var(--background-color);
+    text-align: center;
+    font-size: 20px;
+    text-decoration: none;
+    cursor: pointer;
+    transition : 0.2s;
+}
+
+.downloadButton:hover{
+    background-color: var(--background-color);
+    border: var(--primary-color) 1px solid;
+    color: var(--primary-color);
 }
 
 .optionsDiv{
@@ -174,6 +236,10 @@ h3{
 .radioWrapper{
     display: flex;
     flex-direction: column;
+}
+
+.radioLabel{
+    margin: 5px;
 }
 
 .range{

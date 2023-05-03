@@ -1,6 +1,4 @@
-import math
 import moviepy.editor as mp
-import timeit
 import tempfile
 
 # Function for concatenating clips
@@ -40,7 +38,7 @@ def videoTrim(video, decision, offset):
     return video
 
 # Fucntion for splitting the video into turns, and outputting it
-def splitVideo(original, frame, manouver=None, numVideos=None):
+def splitVideo(original, frame, manouver=None, numVideos=None, terminal=None):
     validDecision = False # Used for input validation
     clipList = [] #Will store clips of turns
     finalList = []
@@ -124,7 +122,10 @@ def splitVideo(original, frame, manouver=None, numVideos=None):
        
     all = mp.clips_array(finalList)
 
-    all.write_videofile("static/files/final.mp4", audio=False)
+    if terminal:
+        all.write_videofile("Footage/final.mp4", audio=False)
+    else:
+        all.write_videofile("static/files/final.mp4", audio=False)    
 
     # Rendering of the vieo, this takes quite a while and no matter what I do it does not get faster :(
     # all.write_videofile("testing.mp4", audio=False, threads=300, fps=30, preset="ultrafast", codec="libx264")

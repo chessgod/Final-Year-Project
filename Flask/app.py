@@ -1,13 +1,10 @@
-from flask import Flask, render_template, url_for, request, session;
-from io import BytesIO;
+from flask import Flask, render_template, url_for, request, session, send_file;
 import folium;
 import sys;
 import os;
 import gpxpy;
 import pandas as pd;
-from werkzeug.utils import secure_filename
 import moviepy as mp;
-from datetime import datetime
 # Get the absolute path of the directory containing views.py
 views_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -73,7 +70,7 @@ def fileUpload():
         if videos:
             # print("combining")
             fullVideo, videoDuration = vp.combineClips(videos)         
-            # fullVideo.write_videofile("static/files/fullVideo.mp4")
+            fullVideo.write_videofile("static/files/fullVideo.mp4")
             session["videoDuration"] = videoDuration
             # print("Video Duration: ", videoDuration)
         # return dfrunInfo, gpxDuration.total_seconds()
@@ -107,18 +104,14 @@ def popUp():
             os.remove("static/files/fullVideo.mp4")
             trimmedVideo.write_videofile("static/files/fullVideo.mp4")
             # trimmedIo = session.get("fullVideo")
-            return render_template("index.html")
-        else:
             
+        else:
             frame = pd.read_csv(csvLocation(),  dtype=types, parse_dates=['time'])
             trimmedDf = gp.gpxTrim(frame, userTrim, offset)
-            # print(userTrim)
-            # print(offset)
-            # print(type(trimmedDf))
             os.remove(csvLocation())
             trimmedDf.to_csv(csvLocation())
-            # session["frame"] = trimmedDf
-            return render_template("index.html", options=True)
+            
+        return render_template("index.html", options=True, uploadText=True)
 
 
 # @app.route('/videos_uploaded', methods = ["POST", "GET"])
@@ -171,7 +164,7 @@ def optionSelection():
     # -------------- TURN DETECTION CODE ----------------
 
     gp.velocityTurnDetection(frame, routeMap)
-    gp.angleTurnDetection(coords,routeMap, frame, direction)
+    gp.angleTurnDetection(coords,routeMap, frame, direction=direction)
     # gp.aiTurnDetection(frame)
     # gp.aiTurnDetection_Load(frame)
 
@@ -179,15 +172,13 @@ def optionSelection():
     turnFrame = frame[frame['turn'] == 1]
 
     # Calls function that will generate the final video
-    # trainingVideo = vp.splitVideo(video,turnFrame, manouver=manouver, numVideos=clips)
+    trainingVideo = vp.splitVideo(video,turnFrame, manouver=manouver, numVideos=clips)
     video.close()
-    return render_template("index.html", upload=True, video=True, map=routeMap._repr_html_())
+    return render_template("output.html", video=True, map=routeMap._repr_html_())
 
-def unserializeDf(frame):
-#   WRITE DF TO CSV, SAVE ON DISK AND LOAD IT WHEN NECESSARY
-#   WRITE FULL VIDEO TO DISK AND LOAD IT WHEN NECCESARY
-#   EVERYTHING ELSE CAN GO ON SESSION
-    pass
+@app.route("/download")
+def download():
+    return send_file(videoLocation(final=True), as_attachment=True)
 
 def csvLocation():
     # Get the current working directory
@@ -197,13 +188,14 @@ def csvLocation():
     fileLocation = os.path.join(current_directory, 'static/files', 'dataframe.csv')
     return fileLocation
 
-def videoLocation():
+def videoLocation(final=False):
 
     current_directory = os.getcwd()
-
-    # Specify the file location relative to the current working directory
-    fileLocation = os.path.join(current_directory, 'static/files', 'fullVideo.mp4')
-
+    if final:
+        fileLocation = os.path.join(current_directory, 'static/files', 'final.mp4')
+    else:
+        fileLocation = os.path.join(current_directory, 'static/files', 'fullVideo.mp4')
+    
     return fileLocation
 
 if __name__ == "__main__":

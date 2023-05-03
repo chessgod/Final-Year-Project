@@ -9,14 +9,18 @@
 <div class="modalWrapper">
     <div class="modalDiv">
         <h1 class="modalInfo">Your {{trimDecision}} is too long. What part would you like to trim?</h1>
-        <div class="modaOptions">
+        <div>
             <form action="/popUp", method="POST">
-                <input type="radio" id="modalBeggining" value="b" name="trimType" class="radioButton">
-                <label for="modalBeggining" class="radioLabel">Beggining</label>
-                <input type="radio" id="modalEnd" value="e" name="trimType" class="radioButton">
-                <label for="gybeRadio" class="radioLabel">End</label>
-                <input type="radio" id="modalBoth" value="bo" name="trimType" class="radioButton">
-                <label for="gybeRadio" class="radioLabel">Both</label>
+                <div class="modalOptions">
+                    <label for="modalBeggining" class="radioLabel">
+                        <input type="radio" id="modalBeggining" value="b" name="trimType" class="radioButton" required>
+                        Beggining
+                    </label>
+                    <label for="gybeRadio" class="radioLabel">
+                        <input type="radio" id="modalEnd" value="e" name="trimType" class="radioButton" required>
+                        End
+                    </label>
+                </div>
                 <button type="submit" class="submitButton">Trim</button>
             </form>
         </div>
@@ -33,38 +37,30 @@
             <div class="gpxUpload">
                     <h3>Please upload your GPX file below.</h3>
                     <!-- code for gpx upload -->
-                    <input type="file" name="gpxFile" class="fileInput" accept=".gpx" max="1">
+                    <input type="file" name="gpxFile" class="fileInput" id="gpxInput" accept=".gpx" max="1">
+                    <!-- <span id="gpxName"></span> -->
             </div>
             <div class="videoUpload">
                     <h3>Please upload your Video files below.</h3>
                     <div class="videoInput">
-                        <input type="file" name="videoFiles" class="fileInput" accept=".mp4" multiple=true>
-                        <span></span>
+                        <input type="file" name="videoFiles" class="fileInput" id="videoInput" accept=".mp4" multiple=true>
+                        <!-- <span id="videoName"></span> -->
                     </div>   
             </div>
             <button type="submit" class="submitButton">Upload</button>
         </form>
     </div>
     {% endif %}
+    
     <div class="mainDiv">
-        {% if not upload %}
+        {% if not uploadText %}
             <h2> 👈 Upload your files to get started!!</h2>
         {% endif %}
-
-        {% if map %}
-            <div class="mapDiv">
-                <h2>Map with route and detected turns:</h2>
-                {{ map | safe }}
-            </div> 
-        {% endif %}
-        {% if video %}
-            <div class="videoDiv">
-                <h2>Training Video:</h2>
-                <video class = "videoStyle" src="{{ url_for('static', filename='files/final.mp4') }}" controls></video>
-            </div>
-        {% endif %}
-        
+        {% if options %}
+            <h2 class = "inputInfo">Input your information here!! &#128073 </h2>
+        {% endif %}  
     </div>
+    
     {% if options %}
     <div class="optionsDiv">
         <h2 style="margin-left: 10px;">Please Choose your options.</h2>
@@ -73,15 +69,19 @@
                 <div class="tacksOrGybes">
                     <h3>Do you want to see tacks or gybes?</h3>
                     <div class="radioWrapper">
-                        <input type="radio" id="tackRadio" value="Tacks" name="maneuver" class="radioButton">
-                        <label for="tackRadio" class="radioLabel">Tack</label>
-                        <input type="radio" id="gybeRadio" value="Gybes" name="maneuver" class="radioButton">
-                        <label for="gybeRadio" class="radioLabel">Gybe</label>
+                        <label for="tackRadio" class="radioLabel">
+                            <input type="radio" id="tackRadio" value="Tacks" name="maneuver" class="radioButton" required>
+                            Tack
+                        </label>
+                        <label for="gybeRadio" class="radioLabel">
+                            <input type="radio" id="gybeRadio" value="Gybes" name="maneuver" class="radioButton" required>
+                            Gybe
+                        </label>
                     </div>
                 </div>
                 <div class="windDirection">
                     <h3>What was the wind direction during your sail?</h3>
-                    <select name="direction" id="direction" class="dropdown">
+                    <select name="direction" id="direction" class="dropdown" required>
                         <option value="N">North</option>
                         <option value="NE">North East</option>
                         <option value="E">East</option>
@@ -103,6 +103,4 @@
     </div>
     {% endif %}
 </div>
-
-
 {% endblock %}

@@ -1,7 +1,6 @@
 import gpxpy;
 import gpxpy.gpx;
 import pandas as pd;
-import matplotlib.pyplot as plt;
 import folium;
 import gpxProcessing as gp;
 import videoProcessing as vp;
@@ -117,7 +116,7 @@ gp.angleTurnDetection(coords,routeMap, dftrimmedInfo)
 turnFrame = dftrimmedInfo[dftrimmedInfo['turn'] == 1]
 
 # Calls function that will generate the final video
-vp.splitVideo(trimmedVideo,turnFrame)
+vp.splitVideo(trimmedVideo,turnFrame, terminal=True)
 
 # Outputs the final map to the browser
 routeMap.show_in_browser()

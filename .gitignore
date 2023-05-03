@@ -1,5 +1,6 @@
 *.mp4
 *.csv
 /CLI/Footage
-/Flask/static/files
 __pycache__
+/CLI/cliEnv
+/Flask/env

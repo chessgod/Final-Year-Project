@@ -1,7 +1,3 @@
-import gpxpy;
-import gpxpy.gpx;
-import pandas as pd;
-import matplotlib.pyplot as plt;
 import numpy as np;
 import folium;
 import math;
@@ -51,7 +47,7 @@ def lineTurnDetection(c, map):
         x+=6
 
 # The real turn detection function
-def angleTurnDetection(coords, map, frame, direction):
+def angleTurnDetection(coords, map, frame, direction=None):
     x = 0 # Counter variable
     angleList = [] #Angle List that will later be added to dataframe
     turnList = [] #Turn List that will later be added to dataframe
@@ -85,10 +81,13 @@ def angleTurnDetection(coords, map, frame, direction):
         angleList.append(angle2deg)
 
         # Thresholding code I will change this with full and by angles etc.
-        if(angle2deg<=150):    
+        if(angle2deg<=135):    
             
             turnList.append(1)
             # Determining type of manouver
+            if not direction:
+                print("What was the wind direction during your sail?(N,S,E,W,NE,SE..)")
+                direction = input()
             manouverResult = manouverType(a,b, direction)
 
             # Adding manouver to list, later added to dataframe
@@ -116,6 +115,7 @@ def angleTurnDetection(coords, map, frame, direction):
         manouverList.append(0)
 
     # Adding values to original dataframe 
+    # print("135", len(turnList))
     frame['angle'] = angleList
     frame['turn'] = turnList
     frame['manouverType'] = manouverList

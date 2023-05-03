@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block head %}
+    <title>Final Year Project</title>
+{% endblock %}
+{% block body %}
+<div class="titleDiv">
+    <h1 class="titleHeader">Automated Generation of Sailing Training Videos ⛵🤖</h1>
+</div>
+{% if video or map%}
+<div class="mapVideoDiv">
+    {% if video %}
+    <div class="videoDiv">
+        <h2 class="titles">Training Video:</h2>
+        <video class = "videoStyle" src="{{ url_for('static', filename='files/final.mp4') }}" height = "400" width = "400" controls></video>
+        <a href="{{ url_for('download')}}" class="downloadButton">Download</a>
+    </div>
+    {% endif %}
+    {% if map %}
+    <div class="mapDiv">
+        <h2 class="titles">Map with route and detected turns:</h2>
+        {{ map | safe }}
+    </div> 
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
